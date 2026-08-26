@@ -10,6 +10,13 @@ function createBundle(options, dmnlintOptions = {}) {
 }
 
 
+async function generateBundle(bundle, options) {
+  const { output } = await bundle.generate(options);
+
+  return output[0];
+}
+
+
 describe('rollup-plugin-dmnlint', function() {
 
   describe('should pack config', function() {
@@ -20,7 +27,7 @@ describe('rollup-plugin-dmnlint', function() {
       const bundle = await createBundle({ input: 'test/fixtures/basic.js' });
 
       // when
-      const { code } = await bundle.generate({ format: 'iife', moduleName: 'cfg' });
+      const { code } = await generateBundle(bundle, { format: 'iife', moduleName: 'cfg' });
 
       // then
       new Function('expect', code)(expect);
@@ -36,7 +43,7 @@ describe('rollup-plugin-dmnlint', function() {
       );
 
       // when
-      const { code } = await bundle.generate({ format: 'iife', moduleName: 'cfg' });
+      const { code } = await generateBundle(bundle, { format: 'iife', moduleName: 'cfg' });
 
       // then
       new Function('expect', code)(expect);
@@ -50,7 +57,7 @@ describe('rollup-plugin-dmnlint', function() {
     const bundle = await createBundle({ input: 'test/fixtures/basic.js' });
 
     // when
-    const { code, map } = await bundle.generate({ sourcemap: true, format: 'esm' });
+    const { code, map } = await generateBundle(bundle, { sourcemap: true, format: 'esm' });
 
     // then
     expect(code).to.exist;
