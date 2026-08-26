@@ -31,10 +31,7 @@ function dmnlint(options = {}) {
         config = JSON.parse(code);
       } catch (err) {
 
-        const match = /^(Unexpected token \n) in JSON at position (23)$/.exec(err.message);
-
-        const message = match && match[1] || err.message;
-        const position = match && parseInt(match[2], 10);
+        const { message, position } = normalizeJsonParseError(err);
 
         return this.error('Failed to parse config: ' + message, position);
       }
@@ -52,5 +49,21 @@ function dmnlint(options = {}) {
     }
   };
 }
+
+
+function normalizeJsonParseError(error) {
+
+  const legacyMatch = /^(Unexpected token \n) in JSON at position (23)$/.exec(error.message);
+  const currentMatch = /^Bad control character in string literal in JSON at position (23)/.exec(error.message);
+
+  return {
+    message: legacyMatch && legacyMatch[1] ||
+      currentMatch && 'Unexpected token \n' ||
+      error.message,
+    position: legacyMatch && parseInt(legacyMatch[2], 10) ||
+      currentMatch && parseInt(currentMatch[1], 10)
+  };
+}
+
 
 module.exports = dmnlint;
